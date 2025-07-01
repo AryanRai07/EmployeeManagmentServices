@@ -24,7 +24,7 @@ public class AdminController {
 		return "hello";
 	}
 	
-	//All User List
+	//All User List get method
 		@GetMapping("/user")
 		public ResponseEntity<List<Product>> getAllUSer() {
 			List<Product> data=new ArrayList<Product>();
