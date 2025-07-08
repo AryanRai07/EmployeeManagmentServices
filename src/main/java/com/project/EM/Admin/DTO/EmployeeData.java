@@ -9,12 +9,10 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Data
-@Getter
-@Setter
 public class EmployeeData {
 	
 	private String message;
 	private Boolean status;
-	private List<EmployeeEntity> data;
+	private EmployeeEntity data;
 
 }

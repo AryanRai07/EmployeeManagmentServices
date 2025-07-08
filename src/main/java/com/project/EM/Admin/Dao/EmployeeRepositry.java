@@ -11,5 +11,8 @@ public interface EmployeeRepositry extends CrudRepository<EmployeeEntity, Intege
 	
 	@Query("select e from EmployeeEntity e")
 	List<EmployeeEntity> getAllEmployee();
+	
+	@Query("select e from EmployeeEntity e where e.name= :userName and e.password= :password ")
+	EmployeeEntity userLoginData(String userName, String password);
 
 }
