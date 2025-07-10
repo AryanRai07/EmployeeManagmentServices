@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.project.EM.Admin.DTO.EmployeeData;
 import com.project.EM.Admin.DTO.LoginRequest;
-import com.project.EM.Admin.Dao.EmployeeRepositry;
 import com.project.EM.Admin.Entity.EmployeeEntity;
+import com.project.EM.Admin.Repository.EmployeeRepositry;
 
 
 @RestController
@@ -65,7 +65,7 @@ public class AdminController {
 					res.setMessage("Invalid credentials or user not found.");
 			    	res.setStatus(false);
 			    	res.setData(null);
-			        return new ResponseEntity<>(res,HttpStatus.UNAUTHORIZED);
+			        return new ResponseEntity<>(res,HttpStatus.OK);
 				}
 				res.setMessage("Login Succesfull.");
 				res.setStatus(true);

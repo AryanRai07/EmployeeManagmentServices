@@ -1,4 +1,4 @@
-package com.project.EM.Admin.Dao;
+package com.project.EM.Admin.Repository;
 
 import java.util.List;
 

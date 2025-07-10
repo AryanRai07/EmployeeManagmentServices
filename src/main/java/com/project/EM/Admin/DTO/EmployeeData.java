@@ -1,12 +1,10 @@
 package com.project.EM.Admin.DTO;
 
-import java.util.List;
 
 import com.project.EM.Admin.Entity.EmployeeEntity;
 
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+
 
 @Data
 public class EmployeeData {
