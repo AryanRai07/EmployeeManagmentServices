@@ -1,14 +1,19 @@
 package com.project.EM.Master.Controller;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import com.project.EM.Master.DTO.MasterDataAPIResponce;
+import com.project.EM.Master.Entity.ChildDepartmentEntity;
+import com.project.EM.Master.Repository.ChildDepartmentRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.project.EM.Master.DTO.DepartmentData;
 import com.project.EM.Master.Entity.DepartmentEntity;
 import com.project.EM.Master.Repository.DepartmentRepository;
 
@@ -17,30 +22,47 @@ public class MasterDataController {
 	
 	private final DepartmentRepository depRepo;
 
-    public MasterDataController(DepartmentRepository employeeRepository) {
+	private final ChildDepartmentRepository childDepRepo;
+
+
+    public MasterDataController(DepartmentRepository employeeRepository, ChildDepartmentRepository childDepRepo) {
         this.depRepo = employeeRepository;
+		this.childDepRepo=childDepRepo;
     }
     
     @GetMapping("/getDepartmentList")
-    public ResponseEntity<DepartmentData> departmentList(){
-    	DepartmentData res=new DepartmentData();
+    public ResponseEntity<MasterDataAPIResponce<List<DepartmentEntity>>> departmentList(){
     	List<DepartmentEntity> list=new  ArrayList<>();
     	try {
     		list=depRepo.getDepartmentList();
     		if(list == null || list.isEmpty()) {
-    			res.setStatus(false);
-    			res.setMsg("No Department Available");
-    			res.setData(null);
-    			return new ResponseEntity<>(res,HttpStatus.OK);
+    			return new ResponseEntity<>(new MasterDataAPIResponce<>(false,"No Department Available",null),HttpStatus.NOT_FOUND);
     		}
-    		res.setStatus(true);
-    		res.setMsg("Department list availabel.");
-    		res.setData(list);
 		} catch (Exception e) {
 			e.printStackTrace();
+			return new ResponseEntity<>(new MasterDataAPIResponce<>(false,"Internal Server Error",null),HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-    	return new ResponseEntity<>(res,HttpStatus.OK);
-    }
+    	return new ResponseEntity<>(new MasterDataAPIResponce<>(true,"Data fetched successfully.",list),HttpStatus.OK);
+
+
+	}
+
+	@GetMapping("/childDepartment/{parentDepartmentId}")
+	public ResponseEntity<MasterDataAPIResponce<List<ChildDepartmentEntity>>> getChildDepartmentList(
+			@PathVariable("parentDepartmentId") Integer id){
+		List<ChildDepartmentEntity> data=new ArrayList<>();
+		try {
+			data=childDepRepo.findByParentId(id);
+			if(data == null || data.isEmpty()) {
+				return new ResponseEntity<>(new MasterDataAPIResponce<>(false,"No Department Available",data),HttpStatus.NOT_FOUND);
+			}
+		}catch (Exception e){
+			e.printStackTrace();
+			return new ResponseEntity<>(new MasterDataAPIResponce<>(false,"Internal Server Error.",data),HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		return new ResponseEntity<>(new MasterDataAPIResponce<>(true,"Data fetched successfully.",data),HttpStatus.OK);
+
+	}
 
 
 }

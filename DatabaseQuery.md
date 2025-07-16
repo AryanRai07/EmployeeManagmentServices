@@ -68,4 +68,36 @@ create table employee_management.employee_data (
 -- select * from employee_management.employee_data
 
 
+
+CREATE TABLE IF NOT EXISTS employee_management.child_department
+(
+id serial PRIMARY KEY ,
+name character varying,
+department_id integer,
+-- CONSTRAINT child_department_id_pkey PRIMARY KEY (id),
+CONSTRAINT child_department_id_fkey FOREIGN KEY (department_id)
+REFERENCES employee_management.department (id) MATCH SIMPLE
+ON UPDATE NO ACTION
+ON DELETE NO ACTION
+)
+
+TABLESPACE pg_default;
+
+
+
+insert into employee_management.child_department(name,department_id)
+values ( 'Instagram',1),
+( 'Facebook',1),
+('Twitter',1),
+('Java',2),
+('Node js',2),
+('Angular',2),
+('C',2);
+
+
+update employee_management.department set name='Marketing' where id=1
+
+update employee_management.department set name='Developer' where id=2
+
+
   
