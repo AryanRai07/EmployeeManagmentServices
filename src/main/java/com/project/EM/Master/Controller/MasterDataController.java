@@ -31,7 +31,7 @@ public class MasterDataController {
     }
     
     @GetMapping("/getDepartmentList")
-    public ResponseEntity<MasterDataAPIResponce<List<DepartmentEntity>>> departmentList(){
+    public ResponseEntity<MasterDataAPIResponce<DepartmentEntity>> departmentList(){
     	List<DepartmentEntity> list=new  ArrayList<>();
     	try {
     		list=depRepo.getDepartmentList();
@@ -48,7 +48,7 @@ public class MasterDataController {
 	}
 
 	@GetMapping("/childDepartment/{parentDepartmentId}")
-	public ResponseEntity<MasterDataAPIResponce<List<ChildDepartmentEntity>>> getChildDepartmentList(
+	public ResponseEntity<MasterDataAPIResponce<ChildDepartmentEntity>> getChildDepartmentList(
 			@PathVariable("parentDepartmentId") Integer id){
 		List<ChildDepartmentEntity> data=new ArrayList<>();
 		try {
