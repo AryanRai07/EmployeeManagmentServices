@@ -1,22 +1,29 @@
 package com.project.EM.Master.DTO;
 
-import com.project.EM.Master.Entity.DepartmentEntity;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Collections;
 import java.util.List;
 
-@Data
-public class MasterDataAPIResponce <T>{
-
+@Getter
+@Setter
+public class MasterDataAPIResponce<T> {
     private String msg;
     private Boolean status;
     private List<T> data;
 
-    public MasterDataAPIResponce(boolean status, String msg, T data) {
+    public MasterDataAPIResponce(boolean status, String msg, List<T> data) {
         this.msg=msg;
         this.status=status;
-        this.data= Collections.singletonList(data);
+        this.data= data;
     }
 
+    // Constructor to wrap a single object into a list
+    public MasterDataAPIResponce(Boolean status, String msg, T data) {
+        this.status = status;
+        this.msg = msg;
+        this.data = (data != null) ? Collections.singletonList(data) : Collections.emptyList();
+    }
 }
+
