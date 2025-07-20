@@ -99,5 +99,9 @@ update employee_management.department set name='Marketing' where id=1
 
 update employee_management.department set name='Developer' where id=2
 
+ALTER TABLE employee_management.employee_data 
+DROP COLUMN emp_id;
 
+ALTER TABLE employee_management.employee_data 
+ADD COLUMN emp_id SERIAL PRIMARY KEY;
   

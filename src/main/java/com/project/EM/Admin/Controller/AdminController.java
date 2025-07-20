@@ -1,21 +1,32 @@
 package com.project.EM.Admin.Controller;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.project.EM.Admin.DTO.EmployeeDTO;
 import com.project.EM.Admin.DTO.EmployeeData;
 import com.project.EM.Admin.DTO.LoginRequest;
 import com.project.EM.Admin.Entity.EmployeeEntity;
 import com.project.EM.Admin.Repository.EmployeeRepositry;
+import com.project.EM.Master.DTO.APIResponce;
+
+import jakarta.validation.Valid;
 
 
 @RestController
@@ -34,25 +45,19 @@ public class AdminController {
 	}
 	
 		@GetMapping("/getEmployeeList")
-		public ResponseEntity<EmployeeData> getEmployeeList(){
-			EmployeeData res=new EmployeeData();
+		public ResponseEntity<APIResponce<EmployeeEntity>> getEmployeeList(){
 			List<EmployeeEntity> data=new ArrayList<>();
 			try {
 				data=empRepo.getAllEmployee();
 
 			    if (data == null || data.isEmpty()) {
-			    	res.setMessage("Data Not Available.");
-			    	res.setStatus(false);
-			    	res.setData(null);
-			        return new ResponseEntity<>(res, HttpStatus.NOT_FOUND);
+			        return new ResponseEntity<>(new APIResponce<>(false, "Data Not Available.", null), HttpStatus.NOT_FOUND);
 			    }
-			    res.setMessage("Data Available.");
-		    	res.setStatus(true);
-		    	//res.setData(data);
 			} catch (Exception e) {
 				e.printStackTrace();
+				return new ResponseEntity<>(new APIResponce<>(false,"Internal Server Error.",null),HttpStatus.INTERNAL_SERVER_ERROR);
 			}
-			return new ResponseEntity<>(res,HttpStatus.OK);
+			return new ResponseEntity<>(new APIResponce<>(true, "Data Available.", data),HttpStatus.OK);
 		}
 		
 		@PostMapping("login")
@@ -62,27 +67,117 @@ public class AdminController {
 			try {
 				data=empRepo.userLoginData(request.getUserName(),request.getPassword());
 				if(data == null) {
-					res.setMessage("Invalid credentials or user not found.");
+					res.setMsg("Invalid credentials or user not found.");
 			    	res.setStatus(false);
 			    	res.setData(null);
 			        return new ResponseEntity<>(res,HttpStatus.OK);
 				}
-				res.setMessage("Login Succesfull.");
+				res.setMsg("Login Succesfull.");
 				res.setStatus(true);
 				res.setData(data);
 			} catch (Exception e) {
 				e.printStackTrace();
-				res.setMessage("Server error occurred.");
+				res.setMsg("Server error occurred.");
 		        res.setStatus(false);
 		        res.setData(null);
 		        return new ResponseEntity<>(res, HttpStatus.INTERNAL_SERVER_ERROR);
 			}
 			return new ResponseEntity<>(res,HttpStatus.OK);
 		}
-
 		
-		public EmployeeData convertToDTO(EmployeeEntity entity) {
-		    return modelMapper.map(entity, EmployeeData.class);
+		@PostMapping("/saveData")
+		public ResponseEntity<APIResponce<String>> saveEmployeeData(@Valid @RequestBody EmployeeDTO data, BindingResult br ){
+			EmployeeEntity obj=new EmployeeEntity();
+			String saveData=null;
+			try {
+				
+				 if(br.hasErrors()) { List<String>
+				 errorMsg=br.getFieldErrors().stream().map(e->
+				 e.getField()+":"+e.getDefaultMessage()).collect(Collectors.toList());
+				 APIResponce<String> responce=new APIResponce<String>(false,
+				 "Validation failed", errorMsg); return new
+				 ResponseEntity<APIResponce<String>>(responce,HttpStatus.OK); }
+				 
+			 	
+			 obj.setName(data.getEmployeeName());
+			 obj.setEmail(data.getEmailId());
+			 obj.setContact(data.getContactNo());
+			 obj.setDepartmentId(data.getDeptId());
+			 obj.setGender(1);
+			 obj.setPassword(data.getPassword());
+			 obj.setCreatedBy(1);
+			 obj.setCreatedOn(new Date());
+			 obj.setRoleId(1);
+			 obj=empRepo.save(obj);
+			  saveData=obj.toString();
+			 return new ResponseEntity<>(new APIResponce<>(true, "Data saved Succesfully", saveData),HttpStatus.OK);
+			} catch (Exception e) {
+				e.printStackTrace();
+				return new ResponseEntity<>(new APIResponce<>(false,"Internal Server Error.",saveData),HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+		}
+		
+		@DeleteMapping("deleteEmploye/{id}")
+		public ResponseEntity<APIResponce<EmployeeDTO>> deleteData(@PathVariable Integer id) {
+			try {
+				if(id== null) {
+					return new ResponseEntity<>(new APIResponce<>(false,"Employee Id required", null),HttpStatus.BAD_REQUEST);
+				}
+				else {
+					Boolean exist=empRepo.existsById(id);
+					if(exist) {
+						empRepo.deleteById(id);
+						return new ResponseEntity<>(new APIResponce<>(true,"Employee deleted succesfully", null),HttpStatus.OK);
+					}else {
+						return new ResponseEntity<>(new APIResponce<>(false,"Employee Id not exist", null),HttpStatus.NOT_FOUND);
+					}
+				}
+			}catch(Exception e) {
+				e.printStackTrace();
+				return new ResponseEntity<>(new APIResponce<>(false,"Internal Server Error", null),HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+		}
+		
+		@PutMapping("/updateEmployeee/{id}")
+		public ResponseEntity<APIResponce<String>> updateEmployee(@PathVariable Integer id, 
+				@Valid @RequestBody EmployeeDTO data, BindingResult br ){
+			EmployeeEntity obj=new EmployeeEntity();
+			String saveData=null;
+			try {
+			 if(br.hasErrors()) { List<String>
+			 errorMsg=br.getFieldErrors().stream().map(e->
+			 e.getField()+":"+e.getDefaultMessage()).collect(Collectors.toList());
+			 APIResponce<String> responce=new APIResponce<String>(false,
+			 "Validation failed", errorMsg); return new
+			 ResponseEntity<APIResponce<String>>(responce,HttpStatus.OK); }
+			 
+			 if(id== null) {
+					return new ResponseEntity<>(new APIResponce<>(false,"Employee Id required", null),HttpStatus.BAD_REQUEST);
+				}
+				else {
+					Boolean exist=empRepo.existsById(id);
+					if(exist) {
+						 obj.setId(id);
+						 obj.setName(data.getEmployeeName());
+						 obj.setEmail(data.getEmailId());
+						 obj.setContact(data.getContactNo());
+						 obj.setDepartmentId(data.getDeptId());
+						 obj.setGender(1);
+						 obj.setPassword(data.getPassword());
+						 obj.setCreatedBy(1);
+						 obj.setCreatedOn(new Date());
+						 obj.setRoleId(1);
+						 obj=empRepo.save(obj);
+						  saveData=obj.toString();
+						return new ResponseEntity<>(new APIResponce<>(true,"Employee updated succesfully", saveData),HttpStatus.OK);
+					}else {
+						return new ResponseEntity<>(new APIResponce<>(false,"Employee Id "+id+" not exist", null),HttpStatus.NOT_FOUND);
+					}
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				return new ResponseEntity<>(new APIResponce<>(false,"Internal Server Error", null),HttpStatus.INTERNAL_SERVER_ERROR);
+			}
 		}
 		
 		

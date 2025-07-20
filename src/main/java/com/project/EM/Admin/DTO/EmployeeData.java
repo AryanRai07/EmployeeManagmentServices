@@ -9,7 +9,7 @@ import lombok.Data;
 @Data
 public class EmployeeData {
 	
-	private String message;
+	private String msg;
 	private Boolean status;
 	private EmployeeEntity data;
 
