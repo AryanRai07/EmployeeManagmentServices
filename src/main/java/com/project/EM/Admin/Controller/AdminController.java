@@ -5,6 +5,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.project.EM.Admin.DTO.ProjectDTO;
+import com.project.EM.Admin.Entity.ProjectEntity;
+import com.project.EM.Admin.Repository.ProjectRepositry;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -27,6 +30,7 @@ import com.project.EM.Admin.Repository.EmployeeRepositry;
 import com.project.EM.Master.DTO.APIResponce;
 
 import jakarta.validation.Valid;
+import org.springframework.web.client.RestClient;
 
 
 @RestController
@@ -35,6 +39,9 @@ public class AdminController {
 	
 	@Autowired
 	EmployeeRepositry empRepo;
+
+	@Autowired
+	ProjectRepositry prjRepo;
 	
 	@Autowired
 	ModelMapper modelMapper ;
@@ -179,7 +186,24 @@ public class AdminController {
 				return new ResponseEntity<>(new APIResponce<>(false,"Internal Server Error", null),HttpStatus.INTERNAL_SERVER_ERROR);
 			}
 		}
-		
-		
+
+		@PostMapping("/createProject")
+		public ResponseEntity<APIResponce<String>> createProject(@Valid @RequestBody ProjectDTO data, BindingResult br){
+			ProjectEntity projectData=new ProjectEntity();
+			List<String> errors=null;
+			try {
+				if(br.hasErrors()){
+					 errors=br.getFieldErrors().stream().map(e->e.getField()+":"+e.getDefaultMessage()).collect(Collectors.toList());
+					return new ResponseEntity<>(new APIResponce<String>(false,"validation failed",errors),HttpStatus.BAD_REQUEST);
+				}
+				 projectData=modelMapper.map(data,ProjectEntity.class);
+				projectData=prjRepo.save(projectData);
+				String returnData=projectData.toString();
+				return new ResponseEntity<>(new APIResponce<String>(true,"Project created Succesfully",returnData),HttpStatus.OK);
+			} catch (Exception e) {
+				e.printStackTrace();
+				return new ResponseEntity<>(new APIResponce<>(false,"Internal Server Error",errors),HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+		}
 		
 }
