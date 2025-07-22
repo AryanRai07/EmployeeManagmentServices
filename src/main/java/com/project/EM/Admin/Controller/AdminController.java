@@ -206,4 +206,21 @@ public class AdminController {
 			}
 		}
 		
+		@GetMapping("/projectData")
+		public ResponseEntity<APIResponce<ProjectEntity>> getAllProjectData(){
+			List<ProjectEntity> data=new ArrayList<>();
+			List<ProjectDTO> resData=new ArrayList<>();
+			try {
+				data=prjRepo.getAllProjectData();
+				//resData=(List<ProjectDTO>) modelMapper.map(data, ProjectDTO.class);
+			    if (data == null || data.isEmpty()) {
+			        return new ResponseEntity<>(new APIResponce<>(false, "Data Not Available.", null), HttpStatus.NOT_FOUND);
+			    }
+			} catch (Exception e) {
+				e.printStackTrace();
+				return new ResponseEntity<>(new APIResponce<>(false,"Internal Server Error.",null),HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+			return new ResponseEntity<>(new APIResponce<>(true, "Data Available.", data),HttpStatus.OK);
+		}
+		
 }

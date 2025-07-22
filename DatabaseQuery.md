@@ -110,14 +110,14 @@ ADD COLUMN emp_id SERIAL PRIMARY KEY;
 ------Project DAta
 
 CREATE TABLE IF NOT EXISTS employee_management.project_data(
-project_id integer Primary key,
+project_id serial Primary key,
 project_name character varying (50),
 client_name character varying,
 start_date timestamp with time zone,
 lead_by_emp_id integer,
 contact_person character varying,
 contact_no character varying,
-emil_id character varying,
+email_id character varying,
 created_on timestamp with time zone,
 created_by integer,
 CONSTRAINT lead_by_emp_id_fkey FOREIGN KEY (lead_by_emp_id)

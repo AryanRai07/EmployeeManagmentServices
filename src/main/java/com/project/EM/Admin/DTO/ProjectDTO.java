@@ -2,9 +2,13 @@ package com.project.EM.Admin.DTO;
 
 
 import jakarta.validation.constraints.*;
+import lombok.Data;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+@Data
 public class ProjectDTO {
 
     private Integer projectId;
@@ -15,7 +19,7 @@ public class ProjectDTO {
     @NotBlank(message = "Client name is required")
     private String clientName;
 
-    //@NotEmpty(message = "Start Date is required")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date startDate;
 
     @NotNull(message = "Lead by employee is required")
@@ -33,6 +37,7 @@ public class ProjectDTO {
     private String emailId;
 
     private Integer createdBy;
-
+    
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSX")
     private Date createdDate;
 }

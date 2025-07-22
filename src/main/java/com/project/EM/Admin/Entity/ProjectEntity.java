@@ -33,13 +33,13 @@ public class ProjectEntity {
     @Column(name="contact_no")
     private String contactNo;
 
-    @Column(name="emil_id")
-    private String emilId;
+    @Column(name="email_id")
+    private String emailId;
 
     @Column(name="created_by")
-    private String createdBy;
+    private Integer createdBy;
 
     @Column(name="created_on")
-    private Date createdOn;
+    private Date createdDate;
 
 }
