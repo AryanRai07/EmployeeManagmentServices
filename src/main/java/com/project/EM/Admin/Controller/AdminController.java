@@ -13,14 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.project.EM.Admin.DTO.EmployeeDTO;
 import com.project.EM.Admin.DTO.EmployeeData;
@@ -222,5 +215,56 @@ public class AdminController {
 			}
 			return new ResponseEntity<>(new APIResponce<>(true, "Data Available.", data),HttpStatus.OK);
 		}
+
+		@PutMapping("/updateProject/{id}")
+		public ResponseEntity<APIResponce<String>> updateProject(@PathVariable Integer id, @Valid @RequestBody ProjectDTO data, BindingResult br){
+			String returnResponce=null;
+			try {
+				if(br.hasErrors()){
+					List<String>errorMsg= br.getFieldErrors().stream().map(e->e.getField()+":"+e.getDefaultMessage()).collect(Collectors.toList());
+
+					APIResponce<String> responce=new APIResponce<String>(false, "Validation failed", errorMsg);
+					return new ResponseEntity<APIResponce<String>>(responce,HttpStatus.OK);
+				}
+				if(data.getProjectId() == 0){
+					return new ResponseEntity<>(new APIResponce<String>(false,"Project id can not be null",returnResponce),HttpStatus.NOT_FOUND);
+				}else{
+					Boolean exist=prjRepo.existsById(id);
+					if(exist) {
+						ProjectEntity saveData=modelMapper.map(data,ProjectEntity.class);
+
+						saveData=prjRepo.save(saveData);
+						returnResponce=saveData.toString();
+						return new ResponseEntity<>(new APIResponce<>(true,"Project updated succesfully", returnResponce),HttpStatus.OK);
+					}else {
+						return new ResponseEntity<>(new APIResponce<>(false,"Project Id "+id+" not exist", null),HttpStatus.NOT_FOUND);
+					}
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				return new ResponseEntity<>(new APIResponce<>(false,"Internal Server Error.",null),HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+		}
+
+	@DeleteMapping("deleteProject/{id}")
+	public ResponseEntity<APIResponce<ProjectDTO>> deleteProject(@PathVariable Integer id) {
+		try {
+			if(id== null) {
+				return new ResponseEntity<>(new APIResponce<>(false,"Project Id required", null),HttpStatus.BAD_REQUEST);
+			}
+			else {
+				Boolean exist=prjRepo.existsById(id);
+				if(exist) {
+					prjRepo.deleteById(id);
+					return new ResponseEntity<>(new APIResponce<>(true,"Project deleted succesfully", null),HttpStatus.OK);
+				}else {
+					return new ResponseEntity<>(new APIResponce<>(false,"Project Id not exist", null),HttpStatus.NOT_FOUND);
+				}
+			}
+		}catch(Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity<>(new APIResponce<>(false,"Internal Server Error", null),HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
 		
 }
