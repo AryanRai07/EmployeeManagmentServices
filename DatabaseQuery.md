@@ -125,3 +125,24 @@ REFERENCES employee_management.employee_data (emp_id) MATCH SIMPLE
 ON UPDATE NO ACTION
 ON DELETE NO ACTION
 );
+
+
+-- Project Employee Mapping Table 
+
+CREATE TABLE IF NOT EXISTS employee_management.project_emp_mapping(
+project_emp_mapping_id serial Primary key,
+project_id integer,
+emp_id integer,
+assigned_data timestamp with time zone,
+role character varying,
+is_active boolean,
+CONSTRAINT project_id_fkey FOREIGN KEY (project_id)
+REFERENCES employee_management.project_data (project_id) MATCH SIMPLE
+ON UPDATE NO ACTION
+ON DELETE NO ACTION,
+
+CONSTRAINT emp_id_fkey FOREIGN KEY (emp_id)
+REFERENCES employee_management.employee_data(emp_id) MATCH SIMPLE
+ON UPDATE NO ACTION
+ON DELETE NO ACTION
+);

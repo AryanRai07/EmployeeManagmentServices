@@ -5,8 +5,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.project.EM.Admin.DTO.ProjectDTO;
+import com.project.EM.Admin.DTO.*;
+import com.project.EM.Admin.Entity.ProjectEmpMappingEntity;
 import com.project.EM.Admin.Entity.ProjectEntity;
+import com.project.EM.Admin.Repository.ProjectEmpMappingRepositry;
 import com.project.EM.Admin.Repository.ProjectRepositry;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +17,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import com.project.EM.Admin.DTO.EmployeeDTO;
-import com.project.EM.Admin.DTO.EmployeeData;
-import com.project.EM.Admin.DTO.LoginRequest;
 import com.project.EM.Admin.Entity.EmployeeEntity;
 import com.project.EM.Admin.Repository.EmployeeRepositry;
 import com.project.EM.Master.DTO.APIResponce;
@@ -35,6 +34,9 @@ public class AdminController {
 
 	@Autowired
 	ProjectRepositry prjRepo;
+
+	@Autowired
+	ProjectEmpMappingRepositry prjEmpMappRepo;
 	
 	@Autowired
 	ModelMapper modelMapper ;
@@ -265,6 +267,55 @@ public class AdminController {
 			e.printStackTrace();
 			return new ResponseEntity<>(new APIResponce<>(false,"Internal Server Error", null),HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+	}
+
+
+	@PostMapping("/saveProjectEmployee")
+	public ResponseEntity<APIResponce<String>> saveProjectEmployeeMAppingData(@Valid @RequestBody ProjectEmpMappingDTO data, BindingResult br){
+		ProjectEmpMappingEntity projectData=new ProjectEmpMappingEntity();
+		List<String> errors=null;
+		try {
+			if(br.hasErrors()){
+				errors=br.getFieldErrors().stream().map(e->e.getField()+":"+e.getDefaultMessage()).collect(Collectors.toList());
+				return new ResponseEntity<>(new APIResponce<String>(false,"validation failed",errors),HttpStatus.BAD_REQUEST);
+			}
+			 projectData=modelMapper.map(data,ProjectEmpMappingEntity.class);
+			projectData.setActive(true);
+			projectData=prjEmpMappRepo.save(projectData);
+			String returnData=projectData.toString();
+			return new ResponseEntity<>(new APIResponce<String>(true,"Project created Succesfully",returnData),HttpStatus.OK);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity<>(new APIResponce<>(false,"Internal Server Error",errors),HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+
+	@GetMapping("/getProjectWiseEmployee")
+	public ResponseEntity<APIResponce<ProjectEmpMappingDTO>> getProjectWiseEmployee(){
+		List<ProjectEmpMappingEntity> data=new ArrayList<>();
+		List<ProjectEmpMappingDTO> resData=new ArrayList<>();
+		//String resData=null;
+		try {
+			data=prjEmpMappRepo.getAllEmployee();
+			//resData=data.toString();
+			for(ProjectEmpMappingEntity a : data){
+				ProjectEmpMappingDTO b=new ProjectEmpMappingDTO();
+				b.setProjectId(a.getProjectId());
+				b.setActive(true);
+				b.setRole(a.getRole());
+				b.setEmpId(a.getEmpId());
+				b.setAssignedData(a.getAssignedData());
+				resData.add(b);
+			}
+			if (resData == null ) {
+				return new ResponseEntity<>(new APIResponce<>(false, "Data Not Available.", null), HttpStatus.NOT_FOUND);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity<>(new APIResponce<>(false,"Internal Server Error.",null),HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		return new ResponseEntity<>(new APIResponce<>(true, "Data Available.", resData),HttpStatus.OK);
 	}
 		
 }

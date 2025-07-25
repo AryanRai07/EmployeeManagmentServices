@@ -1,7 +1,8 @@
 package com.project.EM.Admin.Exception;
 
+import org.springframework.web.bind.annotation.ControllerAdvice;
 
-//@RestControllerAdvice
+@ControllerAdvice
 public class GlobalExceptionHandler {
 
 }
