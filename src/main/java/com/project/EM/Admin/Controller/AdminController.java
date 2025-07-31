@@ -192,6 +192,7 @@ public class AdminController {
 					return new ResponseEntity<>(new APIResponce<String>(false,"validation failed",errors),HttpStatus.BAD_REQUEST);
 				}
 				 projectData=modelMapper.map(data,ProjectEntity.class);
+				 projectData.setProjectId(null); 
 				projectData=prjRepo.save(projectData);
 				String returnData=projectData.toString();
 				return new ResponseEntity<>(new APIResponce<String>(true,"Project created Succesfully",returnData),HttpStatus.OK);
