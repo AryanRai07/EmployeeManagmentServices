@@ -23,6 +23,7 @@ import com.project.EM.Master.DTO.APIResponce;
 
 import jakarta.validation.Valid;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.multipart.MultipartFile;
 
 
 @RestController
@@ -318,5 +319,16 @@ public class AdminController {
 		}
 		return new ResponseEntity<>(new APIResponce<>(true, "Data Available.", resData),HttpStatus.OK);
 	}
-		
+
+    @PostMapping("/fileCoustomValidation")
+    public ResponseEntity<?> fileCoustomValidation(@Valid @ModelAttribute FileUpload fileUpload, BindingResult br) {
+        List<String> errors=new ArrayList<>();
+            if(br.hasErrors()){
+                errors=br.getFieldErrors().stream().map(e->e.getField()+":"+e.getDefaultMessage()).collect(Collectors.toList());
+                return new ResponseEntity<>(new APIResponce<String>(false,"validation failed",errors),HttpStatus.BAD_REQUEST);
+            }else{
+                errors.add("Successfull upload");
+            }
+       return ResponseEntity.ok(errors);
+    }
 }

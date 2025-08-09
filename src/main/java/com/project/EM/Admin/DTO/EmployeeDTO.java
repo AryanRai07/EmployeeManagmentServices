@@ -1,5 +1,6 @@
 package com.project.EM.Admin.DTO;
 
+import com.project.EM.Admin.validator.coustomType.EmployeNameValidate;
 import jakarta.validation.constraints.*;
 import java.util.Date;
 import lombok.Data;
@@ -9,7 +10,8 @@ public class EmployeeDTO {
 
     private Integer employeeId;
 
-    @NotBlank(message = "Employee Name is required")
+    //@NotBlank(message = "Employee Name is required")
+    @EmployeNameValidate
     private String employeeName;
 
     @Pattern(regexp = "^[6-9]\\d{9}$", message = "Mobile number must start with 6-9 and be exactly 10 digits")
