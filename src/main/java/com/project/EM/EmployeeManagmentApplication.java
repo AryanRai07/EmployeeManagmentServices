@@ -14,11 +14,3 @@ public class EmployeeManagmentApplication {
 
 }
 
-//No need to use ComponentScan("") because all package is inside com.project.EM this package if package is 
-//outside of it then need to give package name both or like this 
-
-//@ComponentScan(basePackages = {
-//"com.project.EM",                      // base package
-//"com.project.Admin",               // need 
-//"com.project.EM.Employee"             // NO need optional
-//})
